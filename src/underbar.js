@@ -358,6 +358,13 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+    return _.map(collection, function(item) {
+      if (typeof functionOrKey === 'string') {
+        return item[functionOrKey].apply(item, args);
+      } else {
+        return functionOrKey.apply(item, args);
+      }  
+    });  
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -365,6 +372,17 @@
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+    if (typeof iterator === 'function') {
+      collection.sort(function(a, b) {
+        return iterator(a) - iterator(b);
+      });
+    } else {
+      collection.sort(function(a, b) {
+        return a[iterator] - b[iterator];
+      });
+    }
+
+    return collection;
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -373,18 +391,56 @@
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    let results = [];
+    let args = Array.from(arguments);
+    var longest = null;
+    for (var i = 0; i < args.length; i++) {
+      args[i].length > longest ? longest = args[i].length : null;
+    }
+
+    for (var i = 0; i < longest; i++) {
+      let miniResult = [];
+      for (var j = 0; j < args.length; j++) {
+        miniResult.push(args[j][i]);
+      }
+      results.push(miniResult);
+    }
+    return results;
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
   // The new array should contain all elements of the multidimensional array.
   //
   // Hint: Use Array.isArray to check if something is an array
-  _.flatten = function(nestedArray, result) {
+  _.flatten = function(nestedArray, result = []) {
+    var isFlat = function(arr) {
+      for (let i = 0; i < arr.length; i++) {
+        if (Array.isArray(arr[i])) {
+          isFlat(arr[i]);
+        } else {
+          result.push(arr[i]);
+        }
+      }
+    };
+    isFlat(nestedArray);
+
+    return result;
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
+    let results = [];
+    let args = Array.from(arguments);
+    for (var i = 0; i < args[0].length; i++) {
+      debugger;
+      if ( _.every(args, function(argument) {
+        return _.indexOf(argument, args[0][i]) !== -1;
+      })) {
+        results.push(args[0][i]);
+      }
+    }
+    return results;
   };
 
   // Take the difference between one array and a number of other arrays.
