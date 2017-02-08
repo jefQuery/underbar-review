@@ -224,11 +224,32 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    let args = arguments;
+    let results = {};
+
+    for (let i = 0; i < args.length; i++) {
+      for (let key in args[i]) {
+        results[key] = args[i][key];
+      }
+    }
+
+    return results;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    let args = Array.from(arguments);
+
+    _.each(args, function(item) {
+      for (var key in item) {
+        if (!(key in obj)) {
+          obj[key] = item[key];
+        }
+      }
+    });
+
+    return obj;
   };
 
 
@@ -271,7 +292,21 @@
   // _.memoize should return a function that, when called, will check if it has
   // already computed the result for the given argument and return that value
   // instead if possible.
+
   _.memoize = function(func) {
+
+    var memo = function() {
+      var currentArgKey = Array.from(arguments).join('');
+      if (cache[currentArgKey] === undefined) {
+        cache[currentArgKey] = func.apply(null, arguments);
+      }
+
+      return cache[currentArgKey];
+    };
+
+    var cache = {};
+    
+    return memo;
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -281,6 +316,10 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    let args = Array.from(arguments).slice(2);
+    return setTimeout(function() {
+      return func.apply(null, args);
+    }, wait);
   };
 
 
@@ -295,6 +334,16 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    let mutantArray = [];
+    for (let i = 0; i < array.length; i++) {
+      let randomIdx = Math.floor(Math.random() * array.length);
+      while (_.indexOf(mutantArray, array[randomIdx]) > -1 && mutantArray.length !== array.length) {
+        randomIdx = Math.floor(Math.random() * array.length);
+      }
+      mutantArray.push(array[randomIdx]);
+    }
+
+    return mutantArray;
   };
 
 

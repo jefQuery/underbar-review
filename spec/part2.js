@@ -178,7 +178,7 @@
         var source = {};
         var extended = _.extend(destination, source);
 
-        expect(extended).to.equal(destination);
+        expect(extended).to.eql(destination);
       });
 
       it('should extend an object with the attributes of another', function() {
